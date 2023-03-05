@@ -2,6 +2,8 @@ package com.atguigu.common.result;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * ClassName:Result
  * Package:com.atguigu.common.result
@@ -17,7 +19,7 @@ import lombok.Data;
  * @param <T>
  */
 @Data
-public class Result<T>{
+public class Result<T> implements Serializable {
     //返回码
     private Integer code;
 

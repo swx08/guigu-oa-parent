@@ -7,6 +7,8 @@ import com.guigu.vo.system.AssginMenuVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +46,7 @@ public class SysMenuController {
 
     @ApiOperation(value = "获取菜单列表接口")
     @GetMapping("findNodes")
+    @Cacheable(value = "sysMenu",key = "'sysMenu_1'")
     public Result findNodes() {
         List<SysMenu> list = sysMenuService.findNodes();
         return Result.ok(list);
@@ -51,6 +54,7 @@ public class SysMenuController {
 
     @ApiOperation(value = "新增菜单")
     @PostMapping("save")
+    @CacheEvict(value = "sysMenu",allEntries = true)
     public Result save(@RequestBody SysMenu permission) {
         sysMenuService.save(permission);
         return Result.ok();
@@ -58,6 +62,7 @@ public class SysMenuController {
 
     @ApiOperation(value = "修改菜单")
     @PutMapping("update")
+    @CacheEvict(value = "sysMenu",allEntries = true)
     public Result updateById(@RequestBody SysMenu permission) {
         sysMenuService.updateById(permission);
         return Result.ok();
@@ -65,6 +70,7 @@ public class SysMenuController {
 
     @ApiOperation(value = "删除菜单")
     @DeleteMapping("remove/{id}")
+    @CacheEvict(value = "sysMenu",allEntries = true)
     public Result remove(@PathVariable Long id) {
         sysMenuService.removeMenuById(id);
         return Result.ok();
