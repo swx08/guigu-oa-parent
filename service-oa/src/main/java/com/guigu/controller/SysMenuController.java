@@ -1,0 +1,73 @@
+package com.guigu.controller;
+
+import com.atguigu.common.result.Result;
+import com.guigu.model.system.SysMenu;
+import com.guigu.service.SysMenuService;
+import com.guigu.vo.system.AssginMenuVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * ClassName:SysMenuController
+ * Package:com.guigu.controller
+ * Description
+ *
+ * @Author:@wenxueshi
+ * @Create:2023/3/5 - 14:32
+ * @Version:v1.0
+ */
+@Api("菜单管理接口")
+@RestController
+@RequestMapping("/admin/system/sysMenu")
+public class SysMenuController {
+    @Autowired
+    private SysMenuService sysMenuService;
+
+    @ApiOperation(value = "根据角色获取菜单")
+    @GetMapping("toAssign/{roleId}")
+    public Result toAssign(@PathVariable Long roleId) {
+        List<SysMenu> list = sysMenuService.findSysMenuByRoleId(roleId);
+        return Result.ok(list);
+    }
+
+    @ApiOperation(value = "给角色分配权限")
+    @PostMapping("/doAssign")
+    public Result doAssign(@RequestBody AssginMenuVo assignMenuVo) {
+        sysMenuService.doAssign(assignMenuVo);
+        return Result.ok();
+    }
+
+    @ApiOperation(value = "获取菜单列表接口")
+    @GetMapping("findNodes")
+    public Result findNodes() {
+        List<SysMenu> list = sysMenuService.findNodes();
+        return Result.ok(list);
+    }
+
+    @ApiOperation(value = "新增菜单")
+    @PostMapping("save")
+    public Result save(@RequestBody SysMenu permission) {
+        sysMenuService.save(permission);
+        return Result.ok();
+    }
+
+    @ApiOperation(value = "修改菜单")
+    @PutMapping("update")
+    public Result updateById(@RequestBody SysMenu permission) {
+        sysMenuService.updateById(permission);
+        return Result.ok();
+    }
+
+    @ApiOperation(value = "删除菜单")
+    @DeleteMapping("remove/{id}")
+    public Result remove(@PathVariable Long id) {
+        sysMenuService.removeMenuById(id);
+        return Result.ok();
+    }
+
+}
