@@ -23,6 +23,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <!--<scope>provided </scope>-->
         </dependency>
+        <!--jwt依赖-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>

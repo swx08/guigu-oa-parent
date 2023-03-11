@@ -10,6 +10,7 @@ import com.guigu.service.SysMenuService;
 import com.guigu.service.SysRoleMenuService;
 import com.guigu.utils.MenuHelper;
 import com.guigu.vo.system.AssginMenuVo;
+import com.guigu.vo.system.RouterVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -123,5 +124,64 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             sysRoleMenu.setRoleId(assignMenuVo.getRoleId());
             sysRoleMenuService.save(sysRoleMenu);
         }
+    }
+
+    /**
+     * 根据用户id获取用户可以操作的菜单列表
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<RouterVo> findUserMenuListByUserId(Long userId) {
+        //菜单列表
+        List<SysMenu> sysMenuList = null;
+        //1.判断当前用户是否是管理员  userId=1是管理员
+        if(userId.longValue() == 1){
+            //1.1 如果是管理员，则查询所有菜单列表
+            LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+            //status为1就是可以运作的菜单
+            wrapper.eq(SysMenu::getStatus,1);
+            //升序排序
+            wrapper.orderByAsc(SysMenu::getSortValue);
+            sysMenuList = baseMapper.selectList(wrapper);
+        }else {
+            //1.2 如果不是管理员，根据userId查询可以操作的菜单列表
+            //多表联查：用户角色关系表、角色菜单关系表、菜单表(需要自己写sql，不再借助mybatis-plus)
+            sysMenuList = baseMapper.findUserMenuListByUserId(userId);
+        }
+        //3. 把查询出来的数据列表构建成框架要求的路由结构
+        //3.1 使用菜单操作工具类构建树形结构
+        List<SysMenu> buildTree = MenuHelper.buildTree(sysMenuList);
+        //3.2 构建成框架要求的路由结构
+        List<RouterVo> buildRouterList = this.buildRouter(buildTree);
+        return null;
+    }
+
+    /**
+     * 构建成框架要求的路由结构
+     * @param buildTree
+     * @return
+     */
+    private List<RouterVo> buildRouter(List<SysMenu> buildTree) {
+        return null;
+    }
+
+    /**
+     * 根据用户id获取用户可以操作的操作按钮
+     * 获取操作按钮的权限标识
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<String> findUserPermsListByUserId(Long userId) {
+        //1.判断当前用户是否是管理员  userId=1是管理员
+        //1.1 如果是管理员，则查询所有按钮列表
+
+        //1.2 如果不是管理员，根据userId查询可以操作的按钮列表
+
+        //2. 多表联查：用户角色关系表、角色菜单关系表、菜单表(需要自己写sql，不再借助mybatis-plus)
+
+        //3. 从查询出来的数据里面，获取可以操作的按钮值的list集合，进行返回
+        return null;
     }
 }

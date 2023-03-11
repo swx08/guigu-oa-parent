@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -78,6 +79,10 @@ public class SysUserController {
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     @CacheEvict(value = "sysUser",allEntries = true)
     public Result save(@RequestBody SysUser sysUser){
+        //将密码进行md5加密处理
+        String password = sysUser.getPassword();
+        String md5PassWord = DigestUtils.md5DigestAsHex(password.getBytes());
+        sysUser.setPassword(md5PassWord);
         boolean save = sysUserService.save(sysUser);
         if(save){
             return Result.ok();
