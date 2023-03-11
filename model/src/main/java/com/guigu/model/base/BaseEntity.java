@@ -30,6 +30,7 @@ public class BaseEntity implements Serializable {
     @TableField("is_deleted")
     private Integer isDeleted;
 
+    //数据库中不存在此字段，但需要
     @TableField(exist = false)
     private Map<String,Object> param = new HashMap<>();
 }

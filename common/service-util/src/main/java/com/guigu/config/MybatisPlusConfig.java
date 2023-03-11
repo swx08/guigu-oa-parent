@@ -17,7 +17,10 @@ import org.springframework.context.annotation.Configuration;
  * @Create:2023/3/4 - 21:13
  * @Version:v1.0
  */
-//分页插件配置类
+
+/**
+ * 分页插件配置类
+ */
 @Configuration
 @MapperScan("com.guigu.mapper")
 public class MybatisPlusConfig {

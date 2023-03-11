@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * knife4j配置信息
+ * knife4j接口文档配置信息
  */
 @Configuration
 @EnableSwagger2WebMvc

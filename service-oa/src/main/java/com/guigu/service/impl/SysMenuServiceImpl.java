@@ -76,17 +76,18 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
      */
     @Override
     public List<SysMenu> findSysMenuByRoleId(Long roleId) {
-        //1.查询所有菜单，添加添加status = 1
+        //1.查询所有菜单，获取状态status = 1的菜单
         LambdaQueryWrapper<SysMenu> sysMenuWrapper = new LambdaQueryWrapper<>();
         sysMenuWrapper.eq(SysMenu::getStatus,1);
         List<SysMenu> AllSysMenuList = baseMapper.selectList(sysMenuWrapper);
 
-        //2.根据角色id roleId查询，角色菜单关系表里面 角色id对应所有的菜单id
+        //2.根据角色roleId查询，角色菜单关系表里面 角色roleId对应所有的菜单id
         LambdaQueryWrapper<SysRoleMenu> sysRoleMenuWrapper = new LambdaQueryWrapper<>();
         sysRoleMenuWrapper.eq(SysRoleMenu::getRoleId,roleId);
         List<SysRoleMenu> sysRoleMenuList = sysRoleMenuService.list(sysRoleMenuWrapper);
         //3.根据获取菜单id，获取对应菜单对象
-        List<Long> menuIdList = sysRoleMenuList.stream().map(item -> item.getMenuId()).collect(Collectors.toList());
+        List<Long> menuIdList = sysRoleMenuList.stream().map(
+                item -> item.getMenuId()).collect(Collectors.toList());
         //3.1 拿着菜单id 和所有菜单集合里面id进行比较，如果相同封装
         AllSysMenuList.stream().forEach(item ->{
             if(menuIdList.contains(item.getId())){
@@ -95,7 +96,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                 item.setSelect(false);
             }
         });
-        //4.返回规定树形显示格式菜单列表
+        //4.返回规定树形格式显示菜单列表
         List<SysMenu> sysMenuList = MenuHelper.buildTree(AllSysMenuList);
         return sysMenuList;
     }
@@ -111,7 +112,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         sysRoleMenuLambdaQueryWrapper.eq(SysRoleMenu::getRoleId,assignMenuVo.getRoleId());
         sysRoleMenuService.remove(sysRoleMenuLambdaQueryWrapper);
         //2.从参数assginMenuVo里面获取角色新分配id列表
-        //  进行遍历，把每个id数据添加菜单角色表
+        //  进行遍历，把每个menuId和RoleId数据添加到角色菜单表
         List<Long> menuIdList = assignMenuVo.getMenuIdList();
         for (Long menuId : menuIdList) {
             if(StringUtils.isEmpty(menuId)){

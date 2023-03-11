@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 角色实体类
+ * 角色表实体类
  */
 @Data
 @ApiModel(description = "角色")

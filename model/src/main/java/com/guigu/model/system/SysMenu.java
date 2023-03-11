@@ -9,6 +9,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * 菜单管理表实体类
+ */
 @Data
 @ApiModel(description = "菜单")
 @TableName("sys_menu")

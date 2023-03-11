@@ -55,16 +55,16 @@ public class SysMenuController {
     @ApiOperation(value = "新增菜单")
     @PostMapping("save")
     @CacheEvict(value = "sysMenu",allEntries = true)
-    public Result save(@RequestBody SysMenu permission) {
-        sysMenuService.save(permission);
+    public Result save(@RequestBody SysMenu sysMenu) {
+        sysMenuService.save(sysMenu);
         return Result.ok();
     }
 
     @ApiOperation(value = "修改菜单")
     @PutMapping("update")
     @CacheEvict(value = "sysMenu",allEntries = true)
-    public Result updateById(@RequestBody SysMenu permission) {
-        sysMenuService.updateById(permission);
+    public Result updateById(@RequestBody SysMenu sysMenu) {
+        sysMenuService.updateById(sysMenu);
         return Result.ok();
     }
 

@@ -18,7 +18,7 @@ import java.util.Map;
 @Api(tags = "后台登录管理")
 @RestController
 @RequestMapping("/admin/system/index")
-public class IndexController {
+public class LoginController {
 
 
     /**
@@ -28,7 +28,7 @@ public class IndexController {
     @PostMapping("login")
     public Result login() {
         Map<String, Object> map = new HashMap<>();
-        map.put("token","admin");
+        map.put("token","swx");
         return Result.ok(map);
     }
     /**
@@ -38,8 +38,8 @@ public class IndexController {
     @GetMapping("info")
     public Result info() {
         Map<String, Object> map = new HashMap<>();
-        map.put("roles","[admin]");
-        map.put("name","admin");
+        map.put("roles","[swx]");
+        map.put("name","swx");
         map.put("avatar","https://oss.aliyuncs.com/aliyun_id_photo_bucket/default_handsome.jpg");
         return Result.ok(map);
     }
