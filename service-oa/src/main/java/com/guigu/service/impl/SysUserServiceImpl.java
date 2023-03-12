@@ -5,6 +5,7 @@ import com.guigu.mapper.SysUserMapper;
 import com.guigu.model.system.SysUser;
 import com.guigu.service.SysUserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ClassName:SysUserServiceImpl
@@ -17,4 +18,15 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
+    @Transactional
+    @Override
+    public void updateStatus(Long id, Integer status) {
+        SysUser sysUser = this.getById(id);
+        if(status.intValue() == 1) {
+            sysUser.setStatus(status);
+        } else {
+            sysUser.setStatus(0);
+        }
+        this.updateById(sysUser);
+    }
 }

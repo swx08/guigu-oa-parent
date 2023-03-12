@@ -46,7 +46,6 @@ public class SysMenuController {
 
     @ApiOperation(value = "获取菜单列表接口")
     @GetMapping("findNodes")
-    @Cacheable(value = "sysMenu",key = "'sysMenu_1'")
     public Result findNodes() {
         List<SysMenu> list = sysMenuService.findNodes();
         return Result.ok(list);
@@ -54,7 +53,6 @@ public class SysMenuController {
 
     @ApiOperation(value = "新增菜单")
     @PostMapping("save")
-    @CacheEvict(value = "sysMenu",allEntries = true)
     public Result save(@RequestBody SysMenu sysMenu) {
         sysMenuService.save(sysMenu);
         return Result.ok();
@@ -62,7 +60,6 @@ public class SysMenuController {
 
     @ApiOperation(value = "修改菜单")
     @PutMapping("update")
-    @CacheEvict(value = "sysMenu",allEntries = true)
     public Result updateById(@RequestBody SysMenu sysMenu) {
         sysMenuService.updateById(sysMenu);
         return Result.ok();
@@ -70,7 +67,6 @@ public class SysMenuController {
 
     @ApiOperation(value = "删除菜单")
     @DeleteMapping("remove/{id}")
-    @CacheEvict(value = "sysMenu",allEntries = true)
     public Result remove(@PathVariable Long id) {
         sysMenuService.removeMenuById(id);
         return Result.ok();

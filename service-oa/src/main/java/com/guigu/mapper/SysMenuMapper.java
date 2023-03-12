@@ -2,6 +2,7 @@ package com.guigu.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.guigu.model.system.SysMenu;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,5 +23,5 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
      * @param userId
      * @return
      */
-    List<SysMenu> findUserMenuListByUserId(Long userId);
+    List<SysMenu> findUserMenuListByUserId(@Param("userId") Long userId);
 }

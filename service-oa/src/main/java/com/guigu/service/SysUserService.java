@@ -13,4 +13,10 @@ import com.guigu.model.system.SysUser;
  * @Version:v1.0
  */
 public interface SysUserService extends IService<SysUser> {
+    /**
+     * 更新用户状态
+     * @param id
+     * @param status
+     */
+    void updateStatus(Long id, Integer status);
 }

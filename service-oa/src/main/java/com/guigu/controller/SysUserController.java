@@ -36,7 +36,6 @@ public class SysUserController {
     @ApiOperation("分页查询用户")
     @GetMapping("{page}/{limit}")
     //在方法执行前spring先查看缓存中是否有数据，如果有数据，则直接返回缓存数据；
-    @Cacheable(value = "sysUser",key = "#sysUserQueryVo.keyword + '_' + #sysUserQueryVo.roleId")
     public Result page(@PathVariable Long page,
                        @PathVariable Long limit,
                        SysUserQueryVo sysUserQueryVo){
@@ -61,7 +60,8 @@ public class SysUserController {
         if(!StringUtils.isEmpty(createTimeEnd)) {
             wrapper.le(SysUser::getCreateTime,createTimeEnd);
         }
-
+        //根据创建时间降序查询
+        wrapper.orderByDesc(SysUser::getCreateTime);
         //调用mp的方法实现条件分页查询
         IPage<SysUser> pageModel = sysUserService.page(pageInfo, wrapper);
         return Result.ok(pageModel);
@@ -77,7 +77,6 @@ public class SysUserController {
     @ApiOperation(value = "新增用户")
     @PostMapping("save")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
-    @CacheEvict(value = "sysUser",allEntries = true)
     public Result save(@RequestBody SysUser sysUser){
         //将密码进行md5加密处理
         String password = sysUser.getPassword();
@@ -93,7 +92,6 @@ public class SysUserController {
     @ApiOperation(value = "修改用户")
     @PutMapping("update")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
-    @CacheEvict(value = "sysUser",allEntries = true)
     public Result update(@RequestBody SysUser sysUser){
         boolean update = sysUserService.updateById(sysUser);
         if(update){
@@ -105,12 +103,18 @@ public class SysUserController {
     @ApiOperation(value = "删除用户")
     @DeleteMapping("remove/{id}")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
-    @CacheEvict(value = "sysUser",allEntries = true)
     public Result delete(@PathVariable Long id){
         boolean remove = sysUserService.removeById(id);
         if(remove){
             return Result.ok();
         }
         return Result.fail();
+    }
+
+    @ApiOperation(value = "更新用户状态")
+    @GetMapping("updateStatus/{id}/{status}")
+    public Result updateStatus(@PathVariable Long id, @PathVariable Integer status) {
+        sysUserService.updateStatus(id, status);
+        return Result.ok();
     }
 }

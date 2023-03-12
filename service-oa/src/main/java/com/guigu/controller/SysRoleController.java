@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guigu.model.system.SysRole;
 import com.guigu.service.SysRoleService;
+import com.guigu.vo.system.AssginRoleVo;
 import com.guigu.vo.system.SysRoleQueryVo;
 import com.sun.org.apache.bcel.internal.generic.DREM;
 import io.swagger.annotations.Api;
@@ -19,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * ClassName:SysRoleController
@@ -47,8 +49,7 @@ public class SysRoleController {
     @ApiOperation("分页查询角色")
     //page为当前页码，limit为当前页的展示数量
     @GetMapping("{page}/{limit}")
-    //在方法执行前spring先查看缓存中是否有数据，如果有数据，则直接返回缓存数据；
-    @Cacheable(value = "sysRole",key = "#sysRoleQueryVo.roleName + '_1' ")
+    //在方法执行前spring先查看缓存中是否有数据，如果有数据，则直接返回缓存数据
     public Result page(@PathVariable Long page,
                        @PathVariable Long limit,
                        SysRoleQueryVo sysRoleQueryVo){
@@ -61,6 +62,8 @@ public class SysRoleController {
         if(!StringUtils.isEmpty(roleName)){
             wrapper.like(SysRole::getRoleName,roleName);
         }
+        //根据创建时间降序查询
+        wrapper.orderByDesc(SysRole::getCreateTime);
         //执行分页查询
         Page<SysRole> sysRolePage = sysRoleService.page(pageInfo, wrapper);
         return Result.ok(sysRolePage);
@@ -76,7 +79,6 @@ public class SysRoleController {
     @ApiOperation("新增角色")
     @PostMapping("save")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
-    @CacheEvict(value = "sysRole",allEntries = true)
     //spring-boot中可以用@validated来校验数据，如果数据异常则会统一抛出异常，方便异常中心统一处理。
     public Result save(@RequestBody @Validated SysRole sysRole){
         if (sysRole != null){
@@ -91,7 +93,6 @@ public class SysRoleController {
     @ApiOperation("修改角色")
     @PutMapping("update")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
-    @CacheEvict(value = "sysRole",allEntries = true)
     public Result updateById(@RequestBody SysRole sysRole){
         if(sysRole != null){
             boolean update = sysRoleService.updateById(sysRole);
@@ -119,6 +120,20 @@ public class SysRoleController {
     @CacheEvict(value = "sysRole",allEntries = true)
     public Result batchRemove(@RequestBody List<Long> idList) {
         sysRoleService.removeByIds(idList);
+        return Result.ok();
+    }
+
+    @ApiOperation(value = "根据用户获取角色数据")
+    @GetMapping("/toAssign/{userId}")
+    public Result toAssign(@PathVariable Long userId) {
+        Map<String, Object> roleMap = sysRoleService.findRoleByAdminId(userId);
+        return Result.ok(roleMap);
+    }
+
+    @ApiOperation(value = "根据用户分配角色")
+    @PostMapping("/doAssign")
+    public Result doAssign(@RequestBody AssginRoleVo assginRoleVo) {
+        sysRoleService.doAssign(assginRoleVo);
         return Result.ok();
     }
 }
