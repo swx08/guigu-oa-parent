@@ -14,6 +14,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -49,7 +50,8 @@ public class SysRoleController {
     @ApiOperation("分页查询角色")
     //page为当前页码，limit为当前页的展示数量
     @GetMapping("{page}/{limit}")
-    //在方法执行前spring先查看缓存中是否有数据，如果有数据，则直接返回缓存数据
+    //@EnableGlobalMethodSecurity注解，来判断用户对某个控制层的方法是否具有访问权限
+    @PreAuthorize("hasAuthority('bnt.sysRole.list')")
     public Result page(@PathVariable Long page,
                        @PathVariable Long limit,
                        SysRoleQueryVo sysRoleQueryVo){
@@ -71,6 +73,7 @@ public class SysRoleController {
 
     @ApiOperation(value = "根据id查询")
     @GetMapping("get/{id}")
+    @PreAuthorize("hasAuthority('bnt.sysRole.list')")
     public Result getById(@PathVariable Long id){
         SysRole sysRole = sysRoleService.getById(id);
         return Result.ok(sysRole);
@@ -78,6 +81,7 @@ public class SysRoleController {
 
     @ApiOperation("新增角色")
     @PostMapping("save")
+    @PreAuthorize("hasAuthority('bnt.sysRole.add')")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     //spring-boot中可以用@validated来校验数据，如果数据异常则会统一抛出异常，方便异常中心统一处理。
     public Result save(@RequestBody @Validated SysRole sysRole){
@@ -92,6 +96,7 @@ public class SysRoleController {
 
     @ApiOperation("修改角色")
     @PutMapping("update")
+    @PreAuthorize("hasAuthority('bnt.sysRole.update')")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     public Result updateById(@RequestBody SysRole sysRole){
         if(sysRole != null){
@@ -106,6 +111,7 @@ public class SysRoleController {
     @ApiOperation(value = "删除角色")
     @DeleteMapping("remove/{id}")
     @Transactional
+    @PreAuthorize("hasAuthority('bnt.sysRole.remove')")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     @CacheEvict(value = "sysRole",allEntries = true)
     public Result remove(@PathVariable Long id) {
@@ -116,6 +122,7 @@ public class SysRoleController {
     @ApiOperation(value = "根据id列表删除")
     @DeleteMapping("batchRemove")
     @Transactional
+    @PreAuthorize("hasAuthority('bnt.sysRole.remove')")
     //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     @CacheEvict(value = "sysRole",allEntries = true)
     public Result batchRemove(@RequestBody List<Long> idList) {

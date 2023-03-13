@@ -1,4 +1,4 @@
-package com.guigu.config;
+package com.guigu.config.knife4jconfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;

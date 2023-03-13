@@ -1,4 +1,4 @@
-package com.guigu.config;
+package com.guigu.config.mybatisconfig;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;

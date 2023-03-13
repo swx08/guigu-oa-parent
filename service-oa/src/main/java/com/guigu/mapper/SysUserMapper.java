@@ -2,6 +2,7 @@ package com.guigu.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.guigu.model.system.SysUser;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
