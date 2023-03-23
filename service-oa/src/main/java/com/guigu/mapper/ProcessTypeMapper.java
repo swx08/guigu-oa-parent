@@ -1,23 +1,22 @@
 package com.guigu.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.guigu.model.system.SysRole;
-import org.apache.ibatis.annotations.Mapper;
+import com.guigu.model.process.ProcessType;
 import org.springframework.stereotype.Repository;
 
 /**
- * ClassName:SysRoleMapper
+ * ClassName:ProcessTypeMapper
  * Package:com.guigu.mapper
  * Description
  *
  * @Author:@wenxueshi
- * @Create:2023/3/3 - 22:41
+ * @Create:2023/3/22 - 22:50
  * @Version:v1.0
  */
 
 /**
- * 角色
+ * 审批类型
  */
 @Repository
-public interface SysRoleMapper extends BaseMapper<SysRole> {
+public interface ProcessTypeMapper extends BaseMapper<ProcessType> {
 }

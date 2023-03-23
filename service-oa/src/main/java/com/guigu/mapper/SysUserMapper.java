@@ -14,6 +14,10 @@ import org.springframework.stereotype.Repository;
  * @Create:2023/3/5 - 13:31
  * @Version:v1.0
  */
+
+/**
+ * 用户
+ */
 @Repository
 public interface SysUserMapper extends BaseMapper<SysUser> {
 }

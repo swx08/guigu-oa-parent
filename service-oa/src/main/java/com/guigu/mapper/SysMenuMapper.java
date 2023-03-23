@@ -16,6 +16,10 @@ import java.util.List;
  * @Create:2023/3/5 - 14:23
  * @Version:v1.0
  */
+
+/**
+ * 菜单
+ */
 @Repository
 public interface SysMenuMapper extends BaseMapper<SysMenu> {
     /**

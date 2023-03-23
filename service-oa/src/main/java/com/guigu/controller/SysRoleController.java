@@ -11,6 +11,7 @@ import com.sun.org.apache.bcel.internal.generic.DREM;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -34,6 +35,7 @@ import java.util.Map;
  */
 //接口测试路径http://localhost:8800/doc.html
 @Api(tags = "角色管理接口")
+@Slf4j
 @RestController
 @RequestMapping("/admin/system/sysRole")
 public class SysRoleController {
@@ -43,6 +45,7 @@ public class SysRoleController {
     @ApiOperation("查询所有角色")
     @GetMapping("/findAll")
     public Result findAll(){
+        log.info("查询所有角色请求！");
         List<SysRole> list = sysRoleService.list();
         return Result.ok(list);
     }
@@ -55,6 +58,7 @@ public class SysRoleController {
     public Result page(@PathVariable Long page,
                        @PathVariable Long limit,
                        SysRoleQueryVo sysRoleQueryVo){
+        log.info("分页查询角色请求！");
         //分页构造器
         Page<SysRole> pageInfo = new Page<>(page,limit);
         //查询构造器
@@ -75,6 +79,7 @@ public class SysRoleController {
     @GetMapping("get/{id}")
     @PreAuthorize("hasAuthority('bnt.sysRole.list')")
     public Result getById(@PathVariable Long id){
+        log.info("获取单个角色信息请求！");
         SysRole sysRole = sysRoleService.getById(id);
         return Result.ok(sysRole);
     }
@@ -82,9 +87,9 @@ public class SysRoleController {
     @ApiOperation("新增角色")
     @PostMapping("save")
     @PreAuthorize("hasAuthority('bnt.sysRole.add')")
-    //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     //spring-boot中可以用@validated来校验数据，如果数据异常则会统一抛出异常，方便异常中心统一处理。
     public Result save(@RequestBody @Validated SysRole sysRole){
+        log.info("新增角色请求！");
         if (sysRole != null){
             boolean save = sysRoleService.save(sysRole);
             if(save){
@@ -97,8 +102,8 @@ public class SysRoleController {
     @ApiOperation("修改角色")
     @PutMapping("update")
     @PreAuthorize("hasAuthority('bnt.sysRole.update')")
-    //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     public Result updateById(@RequestBody SysRole sysRole){
+        log.info("修改角色请求！");
         if(sysRole != null){
             boolean update = sysRoleService.updateById(sysRole);
             if(update){
@@ -112,9 +117,9 @@ public class SysRoleController {
     @DeleteMapping("remove/{id}")
     @Transactional
     @PreAuthorize("hasAuthority('bnt.sysRole.remove')")
-    //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     @CacheEvict(value = "sysRole",allEntries = true)
     public Result remove(@PathVariable Long id) {
+        log.info("删除角色请求！");
         sysRoleService.removeById(id);
         return Result.ok();
     }
@@ -123,9 +128,9 @@ public class SysRoleController {
     @DeleteMapping("batchRemove")
     @Transactional
     @PreAuthorize("hasAuthority('bnt.sysRole.remove')")
-    //将一条或多条数据从缓存中删除,新增或删除或修改时，需要将套餐下的所有缓存数据删除
     @CacheEvict(value = "sysRole",allEntries = true)
     public Result batchRemove(@RequestBody List<Long> idList) {
+        log.info("批量删除角色请求！");
         sysRoleService.removeByIds(idList);
         return Result.ok();
     }
@@ -133,6 +138,7 @@ public class SysRoleController {
     @ApiOperation(value = "根据用户获取角色数据")
     @GetMapping("/toAssign/{userId}")
     public Result toAssign(@PathVariable Long userId) {
+        log.info("根据用户获取角色数据请求！");
         Map<String, Object> roleMap = sysRoleService.findRoleByAdminId(userId);
         return Result.ok(roleMap);
     }
@@ -140,6 +146,7 @@ public class SysRoleController {
     @ApiOperation(value = "根据用户分配角色")
     @PostMapping("/doAssign")
     public Result doAssign(@RequestBody AssginRoleVo assginRoleVo) {
+        log.info("根据用户分配角色请求！");
         sysRoleService.doAssign(assginRoleVo);
         return Result.ok();
     }

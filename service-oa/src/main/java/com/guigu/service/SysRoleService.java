@@ -15,6 +15,10 @@ import java.util.Map;
  * @Create:2023/3/4 - 0:13
  * @Version:v1.0
  */
+
+/**
+ * 角色
+ */
 public interface SysRoleService extends IService<SysRole> {
     /**
      * 根据用户获取角色数据

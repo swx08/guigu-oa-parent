@@ -13,6 +13,10 @@ import org.springframework.stereotype.Repository;
  * @Create:2023/3/5 - 14:24
  * @Version:v1.0
  */
+
+/**
+ *  角色菜单
+ */
 @Repository
 public interface SysRoleMenuMapper extends BaseMapper<SysRoleMenu> {
 }

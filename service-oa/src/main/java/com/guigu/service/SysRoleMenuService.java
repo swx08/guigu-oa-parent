@@ -12,5 +12,9 @@ import com.guigu.model.system.SysRoleMenu;
  * @Create:2023/3/5 - 14:25
  * @Version:v1.0
  */
+
+/**
+ * 角色菜单
+ */
 public interface SysRoleMenuService extends IService<SysRoleMenu> {
 }

@@ -11,6 +11,7 @@ import com.guigu.vo.system.LoginVo;
 import com.guigu.vo.system.RouterVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ import java.util.Map;
  */
 //接口测试路径http://localhost:8800/doc.html
 @Api(tags = "后台登录管理")
+@Slf4j
 @RestController
 @RequestMapping("/admin/system/index")
 public class LoginController {
@@ -46,6 +48,7 @@ public class LoginController {
     public Result login(@RequestBody LoginVo loginVo) {
         //1.获取用户名
         String username = loginVo.getUsername();
+        log.info(username + "用户登录请求!");
 
         //2.查询数据库
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
@@ -121,6 +124,7 @@ public class LoginController {
      */
     @PostMapping("logout")
     public Result logout(){
+        log.info("用户退出请求!");
         return Result.ok();
     }
 

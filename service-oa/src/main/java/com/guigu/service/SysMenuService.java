@@ -16,6 +16,10 @@ import java.util.List;
  * @Create:2023/3/5 - 14:24
  * @Version:v1.0
  */
+
+/**
+ * 菜单
+ */
 public interface SysMenuService extends IService<SysMenu> {
     /**
      * 获取菜单列表接口
