@@ -22,10 +22,7 @@ import com.guigu.model.process.Process;
 import com.guigu.model.process.ProcessRecord;
 import com.guigu.model.process.ProcessTemplate;
 import com.guigu.model.system.SysUser;
-import com.guigu.service.ProcessRecordService;
-import com.guigu.service.ProcessService;
-import com.guigu.service.ProcessTemplateService;
-import com.guigu.service.SysUserService;
+import com.guigu.service.*;
 import com.guigu.vo.process.ApprovalVo;
 import com.guigu.vo.process.ProcessFormVo;
 import com.guigu.vo.process.ProcessQueryVo;
@@ -83,6 +80,9 @@ public class ProcessServiceImpl extends ServiceImpl<ProcessMapper, Process> impl
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private MessageService messageService;
+
     /**
      * 获取审批流分页列表
      * @param pageInfo
@@ -101,13 +101,20 @@ public class ProcessServiceImpl extends ServiceImpl<ProcessMapper, Process> impl
      */
     @Override
     public void deployByZip(String deployPath) {
-        InputStream inputStream = this.getClass().getClassLoader()
-                                                .getResourceAsStream(deployPath);
+        // 定义zip输入流
+        InputStream inputStream = this
+                .getClass()
+                .getClassLoader()
+                .getResourceAsStream(deployPath);
+        System.out.println("发布的zip值为 " + inputStream);
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
-        //部署
+        // 流程部署
         Deployment deployment = repositoryService.createDeployment()
-                                                .addZipInputStream(zipInputStream)
-                                                .deploy();
+                .addZipInputStream(zipInputStream)
+                .deploy();
+
+        System.out.println(deployment.getId());
+        System.out.println(deployment.getName());
     }
 
     /**
@@ -145,8 +152,9 @@ public class ProcessServiceImpl extends ServiceImpl<ProcessMapper, Process> impl
         //formData
         JSONObject jsonObject = JSON.parseObject(formValues);
         JSONObject formData = jsonObject.getJSONObject("formData");
+        //遍历formData得到内容，封装map集合
         Map<String,Object> map = new HashMap<>();
-        for(Map.Entry<String,Object> entry:formData.entrySet()){
+        for(Map.Entry<String,Object> entry : formData.entrySet()){
             map.put(entry.getKey(),entry.getValue());
         }
         Map<String,Object> variables = new HashMap<>();
@@ -164,6 +172,7 @@ public class ProcessServiceImpl extends ServiceImpl<ProcessMapper, Process> impl
             String name = user.getName();
             nameList.add(name);
             //6.公众号推送消息
+            messageService.pushPendingMessage(process.getId(), user.getId(), task.getId());
         }
         process.setProcessInstanceId(processInstance.getId());
         process.setDescription("等待" + StringUtils.join(nameList.toArray(), ",") + "审批");
@@ -204,7 +213,7 @@ public class ProcessServiceImpl extends ServiceImpl<ProcessMapper, Process> impl
             processVo.setTaskId(item.getId());
             processList.add(processVo);
         }
-        IPage<ProcessVo> page = new Page<>(pageParam.getCurrent(), pageParam.getSize(), totalCount);
+        IPage<ProcessVo> page = new Page<ProcessVo>(pageParam.getCurrent(), pageParam.getSize(), totalCount);
         page.setRecords(processList);
         return page;
     }
@@ -216,30 +225,23 @@ public class ProcessServiceImpl extends ServiceImpl<ProcessMapper, Process> impl
      */
     @Override
     public Map<String, Object> show(Long id) {
-        //1.根据流程id获取流程信息process
-        Process process = baseMapper.selectById(id);
-        //2.根据流程id获取流程记录信息
-        LambdaQueryWrapper<ProcessRecord> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ProcessRecord::getProcessId,id);
-        List<ProcessRecord> processRecordList = processRecordService.list(wrapper);
-        //3.根据模板id查询模板信息
+        Process process = this.getById(id);
+        List<ProcessRecord> processRecordList = processRecordService.list(new LambdaQueryWrapper<ProcessRecord>().eq(ProcessRecord::getProcessId, id));
         ProcessTemplate processTemplate = processTemplateService.getById(process.getProcessTemplateId());
-        //4.判断当前用户是否可以审批
-        //可以看到信息不一定能审批，不能重复审批
-        boolean isApprove = false;
-        List<Task> taskList = this.getCurrentTaskList(process.getProcessInstanceId());
-        for (Task task : taskList) {
-            //判断任务审批人是否是当前用户
-            String username = LoginUserInfoHelper.getUsername();
-            if(task.getAssignee().equals(username)){
-                isApprove = true;
-            }
-        }
-        //5.查询数据封装到map集合中，返回
-        Map<String,Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("process", process);
         map.put("processRecordList", processRecordList);
         map.put("processTemplate", processTemplate);
+        //计算当前用户是否可以审批，能够查看详情的用户不是都能审批，审批后也不能重复审批
+        boolean isApprove = false;
+        List<Task> taskList = this.getCurrentTaskList(process.getProcessInstanceId());
+        if (!CollectionUtils.isEmpty(taskList)) {
+            for(Task task : taskList) {
+                if(task.getAssignee().equals(LoginUserInfoHelper.getUsername())) {
+                    isApprove = true;
+                }
+            }
+        }
         map.put("isApprove", isApprove);
         return map;
     }
@@ -340,8 +342,11 @@ public class ProcessServiceImpl extends ServiceImpl<ProcessMapper, Process> impl
     public IPage<ProcessVo> findStarted(Page<ProcessVo> pageParam) {
         ProcessQueryVo processQueryVo = new ProcessQueryVo();
         processQueryVo.setUserId(LoginUserInfoHelper.getUserId());
-        IPage<ProcessVo> processVoIPage = baseMapper.selectPage(pageParam, processQueryVo);
-        return processVoIPage;
+        IPage<ProcessVo> page = baseMapper.selectPage(pageParam, processQueryVo);
+        for (ProcessVo item : page.getRecords()) {
+            item.setTaskId("0");
+        }
+        return page;
     }
 
     /**

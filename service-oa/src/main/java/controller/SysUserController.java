@@ -1,4 +1,4 @@
-package com.guigu.controller;
+package controller;
 
 import com.atguigu.common.result.Result;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;

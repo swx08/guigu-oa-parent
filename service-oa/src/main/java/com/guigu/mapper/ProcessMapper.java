@@ -17,10 +17,12 @@ import com.guigu.model.process.Process;
 import com.guigu.vo.process.ProcessQueryVo;
 import com.guigu.vo.process.ProcessVo;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 /**
  * 审批流管理
  */
+@Repository
 public interface ProcessMapper extends BaseMapper<Process> {
     /**
      * 获取审批流分页列表

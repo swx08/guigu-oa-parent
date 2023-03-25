@@ -2,6 +2,7 @@ package com.guigu.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.guigu.model.process.ProcessTemplate;
+import org.springframework.stereotype.Repository;
 
 /**
  * ClassName:ProcessTemplateMapper
@@ -16,5 +17,6 @@ import com.guigu.model.process.ProcessTemplate;
 /**
  * 审批模板
  */
+@Repository
 public interface ProcessTemplateMapper extends BaseMapper<ProcessTemplate> {
 }

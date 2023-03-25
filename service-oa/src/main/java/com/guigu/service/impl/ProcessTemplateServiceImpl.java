@@ -85,11 +85,12 @@ public class ProcessTemplateServiceImpl extends ServiceImpl<ProcessTemplateMappe
     @Override
     public void publish(Long id) {
         ProcessTemplate processTemplate = this.getById(id);
+        //设置状态为1则表示发布，模板发布后不能进行修改或删除
         processTemplate.setStatus(1);
         processTemplateMapper.updateById(processTemplate);
         //TODO 部署流程定义，后续完善
-        if(!StringUtils.isEmpty(processTemplate.getProcessDefinitionPath())){
-            processService.deployByZip(processTemplate.getProcessDefinitionPath());
-        }
+//        if(!StringUtils.isEmpty(processTemplate.getProcessDefinitionPath())){
+//            processService.deployByZip(processTemplate.getProcessDefinitionPath());
+//        }
     }
 }

@@ -1,4 +1,4 @@
-package com.guigu.controller;
+package controller;
 
 import com.atguigu.common.result.Result;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -92,30 +92,32 @@ public class ProcessTemplateController {
      * @return
      * @throws FileNotFoundException
      */
+    @PreAuthorize("hasAuthority('bnt.processTemplate.templateSet')")
     @ApiOperation(value = "上传流程定义")
     @PostMapping("/uploadProcessDefinition")
     public Result uploadProcessDefinition(MultipartFile file) throws FileNotFoundException {
-        log.info("上传文件请求！");
-        //使用工具包获取classes目录路径
-        String path = new File(ResourceUtils.getURL("classpath:")
-                .getPath()).getAbsolutePath();
-        //在classes下再创建一个processes目录存放上传文件
-        File tempFile = new File(path + "/processes/");
-        if(!tempFile.exists()){
-            tempFile.mkdirs();
-        }
-        //创建空文件，实现文件写入
+        String path = new File(ResourceUtils.getURL("classpath:").getPath()).getAbsolutePath();
+        log.info("path为:{}",path);
+
         String fileName = file.getOriginalFilename();
-        File zipFile = new File(path + "/processes/" + fileName);
-        //保存文件到目录classes/processes/zipFile
-        try {
-            file.transferTo(zipFile);
-        } catch (IOException e) {
-            return Result.fail();
+        // 上传目录
+        File tempFile = new File(path + "/processes/");
+        // 判断目录是否存着
+        if (!tempFile.exists()) {
+            tempFile.mkdirs();//创建目录
         }
+        // 创建空文件用于写入文件
+        File imageFile = new File(path + "/processes/" + fileName);
+        // 保存文件流到本地
+        try {
+            file.transferTo(imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.fail("上传失败");
+        }
+
         Map<String, Object> map = new HashMap<>();
         //根据上传地址后续部署流程定义，文件名称为流程定义的默认key
-        //为后续实现activity作准备，部署流程定义需要文件路径
         map.put("processDefinitionPath", "processes/" + fileName);
         map.put("processDefinitionKey", fileName.substring(0, fileName.lastIndexOf(".")));
         return Result.ok(map);

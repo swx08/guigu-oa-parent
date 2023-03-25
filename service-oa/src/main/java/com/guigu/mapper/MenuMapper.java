@@ -1,22 +1,22 @@
 package com.guigu.mapper;
 
 /**
- * ClassName:ProcessRecordMapper
+ * ClassName:MenuMapper
  * Package:com.guigu.mapper
  * Description
  *
  * @Author:@wenxueshi
- * @Create:2023/3/23 - 20:10
+ * @Create:2023/3/24 - 8:58
  * @Version:v1.0
  */
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.guigu.model.process.ProcessRecord;
+import com.guigu.model.wechat.Menu;
 import org.springframework.stereotype.Repository;
 
 /**
- * 流程历史记录
+ * 微信菜单
  */
 @Repository
-public interface ProcessRecordMapper extends BaseMapper<ProcessRecord> {
+public interface MenuMapper extends BaseMapper<Menu> {
 }

@@ -1,4 +1,4 @@
-package com.guigu.controller;
+package controller;
 
 import com.atguigu.common.result.Result;
 import com.guigu.model.system.SysMenu;
