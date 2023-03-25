@@ -1,4 +1,4 @@
-package controller;
+package com.guigu.controller;
 
 import com.atguigu.common.jwt.JwtHelper;
 import com.atguigu.common.result.Result;

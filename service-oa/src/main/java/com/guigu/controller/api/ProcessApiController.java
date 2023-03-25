@@ -1,4 +1,4 @@
-package controller.api;
+package com.guigu.controller.api;
 
 import com.atguigu.common.result.Result;
 import com.guigu.model.process.ProcessTemplate;

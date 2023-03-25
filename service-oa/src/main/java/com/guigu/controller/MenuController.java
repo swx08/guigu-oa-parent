@@ -1,4 +1,4 @@
-package controller;
+package com.guigu.controller;
 
 /**
  * ClassName:MenuController

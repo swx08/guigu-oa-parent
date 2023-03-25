@@ -1,4 +1,4 @@
-package controller.api;
+package com.guigu.controller.api;
 
 import com.alibaba.fastjson.JSON;
 import com.atguigu.common.jwt.JwtHelper;
