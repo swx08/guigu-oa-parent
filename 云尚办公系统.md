@@ -1,0 +1,645 @@
+# 云尚办公系统项目总结
+
+## 一、后端工程架构
+
+### 1、Maven聚合工程
+
+​           父工程 guigu-oa-parent               	依赖版本
+
+​								子模块   common(公共模块)
+
+​																	common-util      核心工具类
+
+​																	service-util         业务模块工具类
+
+​                         		子模块   model             实体类
+
+​						 		子模块   service-oa       业务模块
+
+#### 1.1、项目依赖及配置
+
+配置
+
+```properties
+#端口配置
+server.port=8200
+
+#配置数据源
+spring.datasource.druid.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.druid.url=jdbc:mysql://localhost:3306/guigu-oa?serverTimezone=GMT%2B8&useSSL=false&nullCatalogMeansCurrent=true&characterEncoding=utf-8
+spring.datasource.druid.username=root
+spring.datasource.druid.password=020708
+
+#配置mybatis-plus
+mybatis-plus.configuration.map-underscore-to-camel-case=true
+mybatis-plus.configuration.log-impl=org.apache.ibatis.logging.stdout.StdOutImpl
+mybatis-plus.mapper-locations=classpath:com/guigu/mapper/xml/*.xml
+
+#设置date格式
+spring.jackson.date-format=yyyy-MM-dd HH:mm:ss
+spring.jackson.time-zone=GMT+8
+
+#redis配置
+spring.redis.host=82.157.234.124
+spring.redis.port=6379
+spring.redis.password=123456
+spring.redis.database=0
+spring.redis.timeout=1800000
+
+#activiti配置
+#    false:默认，数据库表不变，但是如果版本不对或者缺失表会抛出异常（生产使用）
+#    true:表不存在，自动创建（开发使用）
+#    create_drop: 启动时创建，关闭时删除表（测试使用）
+#    drop_create: 启动时删除表,在创建表 （不需要手动关闭引擎）
+spring.activiti.database-schema-update=true
+#监测历史表是否存在，activities7默认不开启历史表
+spring.activiti.db-history-used=true
+#none：不保存任何历史数据，流程中这是最高效的
+#activity：只保存流程实例和流程行为
+#audit：除了activity，还保存全部的流程任务以及其属性，audit为history默认值
+#full：除了audit、还保存其他全部流程相关的细节数据，包括一些流程参数
+spring.activiti.history-level=full
+#校验流程文件，默认校验resources下的process 文件夹的流程文件
+spring.activiti.check-process-definitions=true
+
+#微信推送配置
+wechat.mpAppId=wx88a3b565c0b59c37
+wechat.mpAppSecret=6ebce2277427da473f269d309f880874
+# 授权回调获取用户信息接口地址
+wechat.userInfoUrl=http://sixkey3.viphk.91tunnel.com/admin/wechat/userInfo
+```
+
+
+
+父项目pom.xml
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.guigu</groupId>
+  <artifactId>guigu-oa-parent</artifactId>
+  <!--打包方式-->
+  <packaging>pom</packaging>
+
+  <version>1.0-SNAPSHOT</version>
+  <modules>
+    <module>common</module>
+      <module>model</module>
+    <module>service-oa</module>
+  </modules>
+  <!--父依赖-->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.3.6.RELEASE</version>
+  </parent>
+  <!--版本控制-->
+  <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+    <java.version>1.8</java.version>
+    <mybatis-plus.version>3.4.1</mybatis-plus.version>
+    <mysql.version>8.0.30</mysql.version>
+    <knife4j.version>3.0.3</knife4j.version>
+    <jwt.version>0.9.1</jwt.version>
+    <fastjson.version>2.0.21</fastjson.version>
+  </properties>
+
+  <!--配置dependencyManagement锁定依赖的版本-->
+  <dependencyManagement>
+    <dependencies>
+      <!--mybatis-plus 持久层-->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-boot-starter</artifactId>
+        <version>${mybatis-plus.version}</version>
+      </dependency>
+      <!--mysql-->
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql.version}</version>
+      </dependency>
+      <!--knife4j-->
+      <dependency>
+        <groupId>com.github.xiaoymin</groupId>
+        <artifactId>knife4j-spring-boot-starter</artifactId>
+        <version>${knife4j.version}</version>
+      </dependency>
+      <!--jjwt-->
+      <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>${jwt.version}</version>
+      </dependency>
+      <!--fastjson-->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>fastjson</artifactId>
+        <version>${fastjson.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.19.1</version>
+        <configuration>
+          <skipTests>true</skipTests>    <!--默认关掉单元测试 -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
+
+```
+
+common pom.xml
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>guigu-oa-parent</artifactId>
+        <groupId>org.guigu</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.guigu</groupId>
+    <artifactId>common</artifactId>
+    <!--打包方式-->
+    <packaging>pom</packaging>
+    <modules>
+        <module>service-util</module>
+        <module>common-util</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+</project>
+
+```
+
+工具类common-util pom.xml
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>common</artifactId>
+        <groupId>com.guigu</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.atguigu</groupId>
+    <artifactId>common-util</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <!--<scope>provided </scope>-->
+        </dependency>
+        <!--jwt依赖-->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+    </dependencies>
+</project>
+
+```
+
+工具类service-util pom.xml
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>common</artifactId>
+        <groupId>com.guigu</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>service-util</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.atguigu</groupId>
+            <artifactId>common-util</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.guigu</groupId>
+            <artifactId>model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- Spring Security依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!--redis依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+        <!--mysql-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <!--接口文档生成依赖-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+        </dependency>
+
+    </dependencies>
+</project>
+
+```
+
+实体类model pom.xml
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>guigu-oa-parent</artifactId>
+        <groupId>org.guigu</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.guigu</groupId>
+    <artifactId>model</artifactId>
+    <packaging>jar</packaging>
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!--lombok用来简化实体类-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <scope>provided </scope>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <scope>provided </scope>
+        </dependency>
+    </dependencies>
+</project>
+
+```
+
+启动类service-oa pom.xml
+
+```java
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>guigu-oa-parent</artifactId>
+        <groupId>org.guigu</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.guigu</groupId>
+    <artifactId>service-oa</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.guigu</groupId>
+            <artifactId>model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.guigu</groupId>
+            <artifactId>service-util</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--数据库连接池-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.1.23</version>
+        </dependency>
+
+        <!--引入activiti的springboot启动器 -->
+        <dependency>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-spring-boot-starter</artifactId>
+            <version>7.1.0.M6</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>mybatis</artifactId>
+                    <groupId>org.mybatis</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-mp</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 指定该Main Class为全局的唯一入口 这里是启动类的地址 -->
+                    <mainClass>com.guigu.ServiceOaApplication</mainClass>
+                    <layout>ZIP</layout>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!--可以把依赖的包都打包到生成的Jar包中-->
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.yml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes> <include>**/*.yml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.png</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+</project>
+
+```
+
+
+
+### 2、测试报错
+
+#### 2.1、出现问题原因
+
+解决报错：Cause: java.sql.SQLSyntaxErrorException: Table '*.act_ge_property' doesn't exist
+
+```
+原因是mysql版本问题，mysql8.xxx以上驱动会出现这个问题，下图是我原mysql配置，是8.0+。
+因为mysql使用schema标识库名而不是catalog，因此mysql会扫描所有的库来找表，如果其他库中有相同名称的表，activiti就以为找到了，本质上这个表在当前数据库中并不存在。
+设置nullCatalogMeansCurrent=true，表示mysql默认当前数据库操作，在mysql-connector-java 5.xxx该参数默认为true，在6.xxx以上默认为false，因此需要设置nullCatalogMeansCurrent=true。
+```
+
+#### 2.2、解决方式
+
+```java
+&nullCatalogMeansCurrent=true
+xml 文件配置 添加下面url 链接粗体部分
+
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+<property name="url" value="jdbc:mysql://localhost:3306/activitidemo?useUnicode=true&characterEncoding=utf-8&useSSL=true&nullCatalogMeansCurrent=true&serverTimezone=UTC" />
+<property name="username" value="root" />
+<property name="password" value="root" />
+</bean>
+```
+
+#### 2.3、yml配置
+
+```java
+配置mysql连接时加上：nullCatalogMeansCurrent=true 如粗体所示
+url: jdbc:mysql://localhost:3306/demo2?useUnicode=true&characterEncoding=utf-8&useSSL=true&nullCatalogMeansCurrent=true&serverTimezone=UTC
+username: root
+password: root。
+```
+
+## 二、项目功能模块和核心业务流程
+
+### 1.1、管理端
+
+#### 1.1.1、系统管理：
+
+（1）用户管理、角色管理、菜单管理
+
+（2）表之间关系
+
+角色表、用户表、菜单表
+
+用户和角色是多对多关系
+
+角色和菜单是多对多关系
+
+#### 1.1.2、审批模块
+
+（1）审批类型管理
+
+（2）审批模板管理
+
+（3）审批列表
+
+#### 1.1.3、公众号菜单管理
+
+
+
+### 1.2、员工端
+
+#### 1.2.1、微信授权登录
+
+（1）通过手机号和微信openid进行用户关联
+
+#### 1.2.2、显示所有审批类型和模板
+
+#### 1.2.3、发起申请
+
+#### 1.2.4、消息推送
+
+#### 1.2.5、待处理和已处理
+
+#### 1.2.6、查询审批详情和审批操作
+
+## 三、项目技术
+
+| 基础框架：SpringBoot                                         |
+| ------------------------------------------------------------ |
+| 数据缓存：Redis                                              |
+| 数据库：MyBatisPlus + MySQL                                  |
+| 权限控制：SpringSecurity + jwt                               |
+| 工作流引擎：Activiti7                                        |
+| 前端技术：vue-admin-template + Node.js + Npm + Vue + ElementUI + Axios |
+| 微信公众号：公众号菜单 + 微信授权登录 + 消息推送             |
+
+## 四、项目问题和解决方式
+
+### 3.1、跨域问题
+
+**访问协议**： http   https
+
+**ip地址（域名）**： oa.atguigu.com    oa.baidu.com
+
+**端口号**：8800  9528
+
+**多种解决方式：**
+
+（1）在controller类上面添加注解
+
+（2）在前端进行配置
+
+### 3.2、mapper扫描问题
+
+```java
+//第一种方式 ：创建配置类，使用@MapperScan注解
+@Configuration
+@MapperScan(basePackages = {"com.atguigu.auth.mapper","com.atguigu.process.mapper","com.atguigu.wechat.mapper"})
+public class MybatisPlusConfig {
+
+}
+
+//第二种方式：在mapper的接口上面添加注解 @Mapper
+@Mapper
+public interface SysMenuMapper extends BaseMapper<SysMenu> {
+    
+}
+```
+
+### 3.3、xml文件加载问题
+
+**Maven默认情况下，在src - main -java目录下面，只会加载java类型文件，其他类型文件不会加载的**
+
+**第一种解决方式：把xml文件放到resources目录下**
+
+**第二种解决方式：在pom.xml和项目配置文件进行配置**
+
+
+
+### 3.4、流程定义部署zip文件
+
+**zip文件规范（要求）**
+
+**项目路径不能有中文不然发布不成功**
+
+**（1）zip文件名称和流程key保持一致**  
+
+例如：<process id="qingjia" isExecutable="true"> 文件名称 qingjia.zip
+
+**（2）在zip文件打包xml文件，xml文件命名 .bpmn20.xml**
+
+例如：jiaban.bpmn20.xml
+
+
+
+### 3.5、内网穿透问题
+
+**接口和页面在本地localhost，公众号不能直接访问本地路径的，需要使用内网穿透**
+
+有两个用途：
+
+**第一个：公众号页面通过内网穿透到本地页面  9090**
+
+**第二个：公众号里面接口通过内网穿透到本地接口 8800**
+
+
+
+### 3.6、其他问题
