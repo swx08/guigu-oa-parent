@@ -12,6 +12,7 @@ import com.guigu.vo.system.RouterVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -68,10 +69,9 @@ public class LoginController {
         String md5PassWord = DigestUtils.md5DigestAsHex(password.getBytes());
 
         //数据库中的密码是经过md5加密处理的
-        if(!md5PassWord.equals(sysUser.getPassword())){
-            throw new GuiguException(201,"密码错误!");
+        if(!md5PassWord.equals(sysUser.getPassword())) {
+            throw new GuiguException(201, "密码错误!");
         }
-
         //5.判断用户是否被禁用
         if(sysUser.getStatus() == 0 ){
             throw new GuiguException(201,"用户已被禁用!");
@@ -127,5 +127,4 @@ public class LoginController {
         log.info("用户退出请求!");
         return Result.ok();
     }
-
 }

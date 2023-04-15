@@ -11,6 +11,7 @@
 
     <groupId>com.guigu</groupId>
     <artifactId>service-oa</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -74,18 +75,19 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-configuration-processor</artifactId>
-                        </exclude>
-                    </excludes>
+                    <!-- 指定该Main Class为全局的唯一入口 这里是启动类的地址 -->
+                    <mainClass>com.guigu.ServiceOaApplication</mainClass>
+                    <layout>ZIP</layout>
                 </configuration>
+                <executions>
+                    <execution>
+                        <!--可以把依赖的包都打包到生成的Jar包中-->
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <resources>
